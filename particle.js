@@ -210,7 +210,7 @@ const particleModule = (() => {
         }
     }
 
-    function createFire() {
+    function createLeaves() {
         const numParticles = 10;
         const minX = -0.1; // Narrow base at the bottom center
         const maxX = 0.1;
@@ -250,6 +250,6 @@ const particleModule = (() => {
         createGreenTrail,
         createBlueRain,
         createRedExplode,
-        createFire
+        createLeaves
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
