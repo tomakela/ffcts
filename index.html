@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FFCTS 2025-05-30</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: "Inter", sans-serif;
+      background-color: #000;
+    }
+    canvas {
+      display: block;
+      background-color: #000;
+    }
+    .info-box {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: rgba(0, 0, 0, 0.7);
+      color: #fff;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      border: 1px solid #333;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="glcanvas"></canvas>
+  <div class="info-box" id="infoBox">
+    Press keys for different effects: <br>
+    <span id="effect-1">1: Orange Burst</span> <br>
+    <span id="effect-2">2: Green Trail</span> <br>
+    <span id="effect-3">3: Blue Rain</span> <br>
+    <span id="effect-4">4: Red Explode</span> <br>
+    <span id="effect-5">5: Fire</span> <br>
+    Hold Alt for repeating effects, press again to toggle
+  </div>
+
+  <script src="particle.js"></script>
+
+  <script>
+    const activeEffects = new Map();
+    const effectMap = {
+      "1": particleModule.createOrangeBurst,
+      "2": particleModule.createGreenTrail,
+      "3": particleModule.createBlueRain,
+      "4": particleModule.createRedExplode,
+      "5": particleModule.createFire
+    };
+
+    function updateInfoBox(key, isActive) {
+      const span = document.getElementById(`effect-${key}`);
+      if (span) {
+        if (isActive) {
+          span.innerHTML = `<strong>${key}: ${span.textContent.slice(3)}</strong>`;
+        } else {
+          span.innerHTML = `${key}: ${span.textContent.slice(3)}`;
+        }
+      }
+    }
+
+    const toggledKeys = new Set();
+
+    window.addEventListener("keydown", (e) => {
+
+      if (e.code === "Space") {
+      const infoBox = document.getElementById("infoBox");
+      if (infoBox.style.display === "none") {
+        infoBox.style.display = "block";
+      } else {
+        infoBox.style.display = "none";
+      }
+      return; // Prevent further processing for space
+    }
+
+      const effect = effectMap[e.key];
+      if (!effect) {
+        if (e.key === "Enter") {
+          // Clear all repeating effects
+          for (const intervalId of activeEffects.values()) {
+            clearInterval(intervalId);
+          }
+          activeEffects.clear();
+          toggledKeys.clear();
+        }
+        return;
+      }
+
+        // ALT + key: toggle repeating effect ON/OFF
+        if (e.altKey) {
+          if (toggledKeys.has(e.key)) return; // debounce toggle
+          toggledKeys.add(e.key);
+
+          if (activeEffects.has(e.key)) {
+            activeEffects.get(e.key).forEach(clearInterval);
+            activeEffects.delete(e.key);
+            updateInfoBox(e.key, false);
+          } else {
+            const intervalId = setInterval(effect, 200);
+            activeEffects.set(e.key, [intervalId]);
+            updateInfoBox(e.key, true);
+          }
+      } else {
+        // Key alone: allow repeated firing on key hold
+        effect();
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      toggledKeys.delete(e.key); // allow next toggle
+    });
+
+    window.addEventListener("beforeunload", () => {
+      for (const intervalId of activeEffects.values()) {
+        clearInterval(intervalId);
+      }
+    });
+  </script>
+</body>
+</html>
