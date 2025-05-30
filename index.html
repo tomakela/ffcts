@@ -40,22 +40,31 @@
 
   <script>
     const activeEffects = new Map();
+    /* old
     const effects = [
       { key: "1", label: "Orange Burst", action: particleModule.createOrangeBurst },
       { key: "2", label: "Green Trail", action: particleModule.createGreenTrail },
       { key: "3", label: "Blue Rain", action: particleModule.createBlueRain },
       { key: "4", label: "Red Explode", action: particleModule.createRedExplode },
       { key: "5", label: "Leaves", action: particleModule.createLeaves },
-      { key: "6", label: "Volcano", action: particleModule.createVolcanoSpray },
-      { key: "7", label: "Smoke", action: particleModule.createSmoke },
-      { key: "8", label: "Snow", action: particleModule.createSnow },
-      { key: "9", label: "Sparkle", action: particleModule.createSparkle },
-      { key: "0", label: "Lightning", action: particleModule.createLightning },
-      { key: "q", label: "Starfield", action: particleModule.createStarfield },
-      { key: "w", label: "Energy ball", action: particleModule.createEnergyBall },
-      { key: "e", label: "Sonic boom", action: particleModule.createSonicBoom },
-      { key: "r", label: "Fountain", action: particleModule.createFountain },
     ];
+    */
+
+    // new
+    const keys = "1234567890qwertyuiopåasdfghjklöäzxcvbnm";
+
+    const effects = Object.entries(particleModule).map(([funcName], index) => {
+        // Remove the 'create' prefix
+        const labelPart = funcName.replace(/^create/, '');
+        // Insert spaces before uppercase letters and trim
+        const label = labelPart.replace(/([A-Z])/g, ' $1').trim();
+
+        return {
+            key: keys[index],
+            label,
+            action: particleModule[funcName]
+        };
+    });
 
     const effectMap = {};
     effects.forEach(e => {
@@ -64,28 +73,28 @@
     });
     
     const effectListEl = document.getElementById("effectList");
-const keyToSpanId = {}; // Map key to element ID
+    const keyToSpanId = {}; // Map key to element ID
 
-effects.forEach((e) => {
-  const span = document.createElement("span");
-  span.id = `effect-${e.key}`;
-  keyToSpanId[e.key] = span.id;
-  span.textContent = `${e.key}: ${e.label}`;
-  effectListEl.appendChild(span);
-  effectListEl.appendChild(document.createElement("br"));
-});
+    effects.forEach((e) => {
+      const span = document.createElement("span");
+      span.id = `effect-${e.key}`;
+      keyToSpanId[e.key] = span.id;
+      span.textContent = `${e.key}: ${e.label}`;
+      effectListEl.appendChild(span);
+      effectListEl.appendChild(document.createElement("br"));
+    });
 
-function updateInfoBox(key, isActive) {
-  const spanId = keyToSpanId[key.toLowerCase()];
-  const span = document.getElementById(spanId);
-  if (span) {
-    if (isActive) {
-      span.innerHTML = `<strong>${key.toLowerCase()}: ${span.textContent.slice(3)}</strong>`;
-    } else {
-      span.innerHTML = `${key.toLowerCase()}: ${span.textContent.slice(3)}`;
+    function updateInfoBox(key, isActive) {
+      const spanId = keyToSpanId[key.toLowerCase()];
+      const span = document.getElementById(spanId);
+      if (span) {
+        if (isActive) {
+          span.innerHTML = `<strong>${key.toLowerCase()}: ${span.textContent.slice(3)}</strong>`;
+        } else {
+          span.innerHTML = `${key.toLowerCase()}: ${span.textContent.slice(3)}`;
+        }
+      }
     }
-  }
-}
 
     const toggledKeys = new Set();
 
