@@ -38,6 +38,7 @@
     <span id="effect-4">4: Red Explode</span> <br>
     <span id="effect-5">5: Leaves</span> <br>
     <span id="effect-6">6: Volcano</span> <br>
+    <span id="effect-7">7: Smoke</span> <br>
     Hold Alt for repeating effects, press again to toggle
   </div>
 
@@ -52,6 +53,7 @@
       "4": particleModule.createRedExplode,
       "5": particleModule.createLeaves,
       "6": particleModule.createVolcanoSpray,      
+      "7": particleModule.createSmoke,      
     };
 
     function updateInfoBox(key, isActive) {
@@ -88,6 +90,9 @@
           }
           activeEffects.clear();
           toggledKeys.clear();
+
+          // Reset all info box lines to non-bold
+          Object.keys(effectMap).forEach((key) => updateInfoBox(key, false));
         }
         return;
       }

@@ -248,10 +248,10 @@ function createVolcanoSpray() {
     const numParticles = 150;
     const minX = -0.05; // Narrow eruption base
     const maxX = 0.05;
-    const startY = .25; // Bottom of WebGL canvas
-    const maxUpwardSpeed = 0.015;
+    const startY = 0; // Bottom of WebGL canvas
+    const maxUpwardSpeed = -0.03;
     const aspectRatio = canvas.width / canvas.height;
-    const gravity = -0.0004;
+    const gravity = 0.0004;
 
     for (let i = 0; i < numParticles; i++) {
         // Slight cone spread
@@ -284,6 +284,44 @@ function createVolcanoSpray() {
     }
 }
 
+function createSmoke() {
+    const numParticles = 100;
+    const ox = 0.3;
+    const minX = -0.02-ox;
+    const maxX = 0.02-ox;
+    const startY = 0.8;
+    const aspectRatio = canvas.width / canvas.height;
+    const gravity = 0.00005; // Slight upward lift (negative gravity)
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = (Math.random() - 0.5) * Math.PI / 6; // ±15° horizontal spread
+        const speed = 0.001 + Math.random() * 0.002;
+        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vy = Math.sin(angle) * speed + 0.002; // Gentle upward drift
+
+        // Color: soft grayish tones for smoke
+        const gray = 0.3 + Math.random() * 0.4;
+        const alpha = 0.4 + Math.random() * 0.2;
+
+        particles.push({
+            x: minX + Math.random() * (maxX - minX),
+            y: startY,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: [gray, gray, gray, alpha],
+            size: 5 + Math.random() * 5,
+            fadeSpeed: 0.001 + Math.random() * 0.001,
+            update: function (p) {
+                p.vy -= gravity; // Simulate lift
+                p.x += p.vx;
+                p.y += p.vy;
+            }
+        });
+    }
+}
+
+
 
 
     // Expose public functions
@@ -293,6 +331,7 @@ function createVolcanoSpray() {
         createBlueRain,
         createRedExplode,
         createLeaves,
-        createVolcanoSpray
+        createVolcanoSpray,
+        createSmoke
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
