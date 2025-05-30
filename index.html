@@ -99,7 +99,9 @@
     const toggledKeys = new Set();
 
     window.addEventListener("keydown", (e) => {
-      e.preventDefault();
+      if (!e.key.startsWith("F")) {
+        e.preventDefault(); // Prevent default browser actions for other keys
+            }
       if (e.code === "Space") {
       const infoBox = document.getElementById("infoBox");
       if (infoBox.style.display === "none") {

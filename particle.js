@@ -612,6 +612,50 @@ function createFountain() {
     }
 }
 
+function createDrippingGoo() {
+    const numParticles = 80;
+    const aspectRatio = canvas.height / canvas.width;
+    const gravity = 0.0001; // Positive value for downward pull
+    const startXRange = 0.01; // Tighter horizontal spread for a "drip" source
+
+    for (let i = 0; i < numParticles; i++) {
+        // Start closer to the center top, with a slight random spread
+        const x = (Math.random() * 0.5) * startXRange;
+        const y = -1.1 + Math.random() * 0.1; // Start just above the top, less "floating"
+
+        // Initial velocity: mostly downward, with a very slight horizontal wobble
+        const vxBase = (Math.random() - 0.5) * 0.005 * aspectRatio; // Even slower horizontal base
+        const vy = 0.001 + Math.random() * 0.0005; // Initial downward speed (positive!)
+
+        particles.push({
+            x: x,
+            y: y,
+            vx: vxBase,
+            vy: vy,
+            life: 1.0, // Could be used for more complex fading, but color alpha is used here
+            color: [0.3, 0.7, 0.2, 0.85], // Gooey green with slight opacity
+            size: 10 + Math.random() * 6, // Larger initial size for better visual impact
+            fadeSpeed: 0.004 + Math.random() * 0.0002, // Adjust fade speed for longer life
+            update: function(p, time) {
+                // Apply gravity: pulls particles down, increasing their downward velocity
+                p.vy += gravity;
+
+                // Add a subtle, organic side-to-side wobble
+                // The time component makes it continuously fluctuate
+                // The p.x * 10 part creates slight variations based on particle position
+                p.vx = vxBase + Math.sin(time * 0.005 + p.x * 1) * 0.00008;
+
+                //p.x =0;
+                p.y += p.vy;
+
+                // Fade out and shrink, but less aggressively for a stretchier look
+                p.color[3] -= p.fadeSpeed; // Gradually reduce alpha
+                p.size *= 0.99; // Shrink more slowly to give a "stretching" impression
+            }
+        });
+    }
+}
+
 
     // Expose public functions
     return {
@@ -628,6 +672,7 @@ function createFountain() {
         createStarfield,
         createEnergyBall,
         createSonicBoom,
-        createFountain
+        createFountain,
+        createDrippingGoo
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
