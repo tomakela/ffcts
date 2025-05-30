@@ -244,12 +244,55 @@ const particleModule = (() => {
         }
     }
 
+function createVolcanoSpray() {
+    const numParticles = 150;
+    const minX = -0.05; // Narrow eruption base
+    const maxX = 0.05;
+    const startY = .25; // Bottom of WebGL canvas
+    const maxUpwardSpeed = 0.015;
+    const aspectRatio = canvas.width / canvas.height;
+    const gravity = -0.0004;
+
+    for (let i = 0; i < numParticles; i++) {
+        // Slight cone spread
+        const angle = (Math.random() - 0.5) * (Math.PI / 4) + Math.PI / 2; // Spray upward ±22.5°
+        const speed = 0.005 + Math.random() * maxUpwardSpeed;
+        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vy = Math.sin(angle) * speed;
+
+        // Color: glowing lava tones (red-orange-yellow)
+        const colorChoice = Math.random();
+        const color = colorChoice < 0.4 ? [1.0, 0.2, 0.0] :
+                      colorChoice < 0.8 ? [1.0, 0.5, 0.0] :
+                                          [1.0, 1.0, 0.0];
+
+        particles.push({
+            x: minX + Math.random() * (maxX - minX),
+            y: startY,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: color,
+            size: 2 + Math.random() * 2,
+            fadeSpeed: 0.003 + Math.random() * 0.002,
+            update: function (p) {
+                p.vy += gravity; // Apply gravity to pull down
+                p.x += p.vx;
+                p.y += p.vy;
+            }
+        });
+    }
+}
+
+
+
     // Expose public functions
     return {
         createOrangeBurst,
         createGreenTrail,
         createBlueRain,
         createRedExplode,
-        createLeaves
+        createLeaves,
+        createVolcanoSpray
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
