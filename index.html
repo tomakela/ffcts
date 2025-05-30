@@ -48,30 +48,41 @@
       { key: "5", label: "Leaves", action: particleModule.createLeaves },
       { key: "6", label: "Volcano", action: particleModule.createVolcanoSpray },
       { key: "7", label: "Smoke", action: particleModule.createSmoke },
+      { key: "8", label: "Snow", action: particleModule.createSnow },
+      { key: "9", label: "Sparkle", action: particleModule.createSparkle },
+      { key: "0", label: "Lightning", action: particleModule.createLightning },
+      { key: "q", label: "Starfield", action: particleModule.createStarfield },
     ];
 
     const effectMap = {};
-    effects.forEach(e => effectMap[e.key] = e.action);
-
-    const effectListEl = document.getElementById("effectList");
-    effects.forEach((e, i) => {
-      const span = document.createElement("span");
-      span.id = `effect-${i + 1}`;
-      span.textContent = `${e.key}: ${e.label}`;
-      effectListEl.appendChild(span);
-      effectListEl.appendChild(document.createElement("br"));
+    effects.forEach(e => {
+      effectMap[e.key] = e.action;
+      effectMap[e.key.toUpperCase()] = e.action; // Add capital version too
     });
+    
+    const effectListEl = document.getElementById("effectList");
+const keyToSpanId = {}; // Map key to element ID
 
-    function updateInfoBox(key, isActive) {
-      const span = document.getElementById(`effect-${key}`);
-      if (span) {
-        if (isActive) {
-          span.innerHTML = `<strong>${key}: ${span.textContent.slice(3)}</strong>`;
-        } else {
-          span.innerHTML = `${key}: ${span.textContent.slice(3)}`;
-        }
-      }
+effects.forEach((e) => {
+  const span = document.createElement("span");
+  span.id = `effect-${e.key}`;
+  keyToSpanId[e.key] = span.id;
+  span.textContent = `${e.key}: ${e.label}`;
+  effectListEl.appendChild(span);
+  effectListEl.appendChild(document.createElement("br"));
+});
+
+function updateInfoBox(key, isActive) {
+  const spanId = keyToSpanId[key.toLowerCase()];
+  const span = document.getElementById(spanId);
+  if (span) {
+    if (isActive) {
+      span.innerHTML = `<strong>${key.toLowerCase()}: ${span.textContent.slice(3)}</strong>`;
+    } else {
+      span.innerHTML = `${key.toLowerCase()}: ${span.textContent.slice(3)}`;
     }
+  }
+}
 
     const toggledKeys = new Set();
 
@@ -87,7 +98,9 @@
       return; // Prevent further processing for space
     }
 
-      const effect = effectMap[e.key];
+    const key = e.key.toLowerCase();
+    const effect = effectMap[key];
+
       if (!effect) {
         if (e.key === "Enter") {
           // Clear all repeating effects
@@ -105,17 +118,17 @@
 
         // ALT + key: toggle repeating effect ON/OFF
         if (e.altKey) {
-          if (toggledKeys.has(e.key)) return; // debounce toggle
-          toggledKeys.add(e.key);
+          if (toggledKeys.has(key)) return; // debounce toggle
+          toggledKeys.add(key);
 
-          if (activeEffects.has(e.key)) {
-            activeEffects.get(e.key).forEach(clearInterval);
-            activeEffects.delete(e.key);
-            updateInfoBox(e.key, false);
+          if (activeEffects.has(key)) {
+            activeEffects.get(key).forEach(clearInterval);
+            activeEffects.delete(key);
+            updateInfoBox(key, false);
           } else {
-            const intervalId = setInterval(effect, 200);
-            activeEffects.set(e.key, [intervalId]);
-            updateInfoBox(e.key, true);
+            const intervalId = setInterval(effect, 100);
+            activeEffects.set(key, [intervalId]);
+            updateInfoBox(key, true);
           }
       } else {
         // Key alone: allow repeated firing on key hold
@@ -124,7 +137,7 @@
     });
 
     window.addEventListener("keyup", (e) => {
-      toggledKeys.delete(e.key); // allow next toggle
+      toggledKeys.delete(e.key.toLowerCase()); // allow next toggle
     });
 
     window.addEventListener("beforeunload", () => {

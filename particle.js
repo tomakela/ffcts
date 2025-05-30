@@ -321,7 +321,192 @@ function createSmoke() {
     }
 }
 
+function createSnow() {
+    const numParticles = 120;
+    const minX = -1.0;
+    const maxX = 1.0;
+    const startY = -1.0;
+    const aspectRatio = canvas.width / canvas.height;
 
+    for (let i = 0; i < numParticles; i++) {
+        const baseX = minX + Math.random() * (maxX - minX);
+        const driftAmplitude = 0.01 + Math.random() * 0.02; // how far it sways
+        const driftFrequency = 0.5 + Math.random(); // how fast it sways
+        const fallSpeed = -0.0005 - Math.random() * 0.001;
+
+        particles.push({
+            x: baseX,
+            y: startY + Math.random() * 0.1,
+            baseX: baseX,
+            driftAmplitude: driftAmplitude,
+            driftFrequency: driftFrequency,
+            fallSpeed: fallSpeed,
+            time: Math.random() * 100, // phase offset
+            life: 1.0,
+            color: [1.0, 1.0, 1.0, 0.9],
+            size: 2 + Math.random() * 2,
+            fadeSpeed: 0.0003 + Math.random() * 0.0003,
+            update: function (p) {
+                p.time += 0.01;
+                p.y -= p.fallSpeed;
+                p.x = p.baseX + Math.sin(p.time * p.driftFrequency) * p.driftAmplitude / aspectRatio;
+            }
+        });
+    }
+}
+
+let currentSparkleCenterX = 0.0;
+let currentSparkleCenterY = 0.0;
+
+function createSparkle() {
+    const numParticles = 80;
+    // Use the global center coordinates
+    const centerX = currentSparkleCenterX;
+    const centerY = currentSparkleCenterY;
+    const spawnRadius = 0.15;
+    const aspectRatio = canvas.height / canvas.width;
+
+    for (let i = 0; i < numParticles; i++) {
+        const r = Math.sqrt(Math.random()) * spawnRadius;
+        const theta = Math.random() * 2 * Math.PI;
+        const spawnX = centerX + Math.cos(theta) * r * aspectRatio;
+        const spawnY = centerY + Math.sin(theta) * r;
+
+        // Random outward velocity
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 0.002 + Math.random() * 0.003;
+        const vx = Math.cos(angle) * speed * aspectRatio;
+        const vy = Math.sin(angle) * speed;
+
+        // Color: white, gold, or soft blue
+        const colorChoice = Math.random();
+        const color = colorChoice < 0.4 ? [1.0, 1.0, 1.0, 1.0] :
+                      colorChoice < 0.7 ? [1.0, 0.9, 0.5, 1.0] :
+                                          [0.8, 0.9, 1.0, 1.0];
+
+        particles.push({
+            x: spawnX,
+            y: spawnY,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: color,
+            size: 1.5 + Math.random() * 1.5,
+            fadeSpeed: 0.01 + Math.random() * 0.01,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+            }
+        });
+    }
+}
+
+// Function to update the sparkle origin
+function updateSparkleOrigin() {
+    // Define the bounds for random positioning (adjust as needed)
+    // These values (-0.8 to 0.8) ensure the sparkle isn't right at the very edge
+    const minX = -0.8;
+    const maxX = 0.8;
+    const minY = -0.8;
+    const maxY = 0.8;
+
+    currentSparkleCenterX = minX + Math.random() * (maxX - minX);
+    currentSparkleCenterY = minY + Math.random() * (maxY - minY);
+
+    console.log(`Sparkle origin moved to: (${currentSparkleCenterX.toFixed(2)}, ${currentSparkleCenterY.toFixed(2)})`);
+}
+
+// Call this once to set an initial position
+updateSparkleOrigin();
+
+// Set an interval to update the origin every few seconds
+// For example, every 3 seconds (3000 milliseconds)
+setInterval(updateSparkleOrigin, 2000);
+
+
+function createLightning() {
+    const numParticles = 100;
+    const startX = 0.0;
+    const startY = -1.0;  // top of canvas (correct)
+    const endY = 1.0;   // bottom of canvas
+    const segmentLength = 0.05;
+    const maxOffset = 0.03;
+    const aspectRatio = canvas.width / canvas.height;
+
+    const lightningPoints = [];
+    let currentX = startX;
+    let currentY = startY;
+
+    // Generate jagged lightning path downward (y decreases)
+    while (currentY < endY) {
+        lightningPoints.push({ x: currentX, y: currentY });
+        currentY += segmentLength;
+        currentX += (Math.random() * 2 - 1) * maxOffset * aspectRatio;
+    }
+    lightningPoints.push({ x: currentX, y: endY });
+
+    for (let i = 0; i < lightningPoints.length - 1; i++) {
+        const p1 = lightningPoints[i];
+        const p2 = lightningPoints[i + 1];
+
+        for (let j = 0; j < 5; j++) {
+            const t = j / 5;
+            const x = p1.x + (p2.x - p1.x) * t;
+            const y = p1.y + (p2.y - p1.y) * t;
+
+            particles.push({
+                x: x,
+                y: y,
+                vx: 0,
+                vy: 0,
+                life: .5 + Math.random()*0.5,           // longer life (~1.5 to 2.5)
+                color: [1.0, 1.0, 0.5, 0.8],        // yellowish tint
+                size: 2 + Math.random() * 2,
+                fadeSpeed: 0.005 + Math.random() * 0.005, // slower fade
+                update: function (p) {
+                    p.color[3] = 0.6 + Math.random() * 0.4; // flicker alpha
+                }
+            });
+        }
+    }
+}
+
+
+function createStarfield() {
+    const numParticles = 200;
+    const aspectRatio =  canvas.height / canvas.width;
+
+    for (let i = 0; i < numParticles; i++) {
+        // Start near center with random offset and speed
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = 0.005+Math.random() * 0.02; // small start radius
+        const speed = 0.002 + Math.random() * 0.004;
+
+        const dirX = Math.cos(angle);
+        const dirY = Math.sin(angle);
+
+        particles.push({
+            x: radius * dirX * aspectRatio,
+            y: radius * dirY,
+            vx: dirX * speed * aspectRatio,
+            vy: dirY * speed,
+            life: 1.0,
+            color: [1.0, 1.0, 1.0, 1.0], // white stars
+            size: 0.8 + Math.random() * 1.5,
+            fadeSpeed: 0.001, // barely fades, stars persist
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                // Optional: scale up size for pseudo depth
+                p.size += 0.02;
+                // Kill particle if it flies off-screen
+                if (Math.abs(p.x) > 1.5 || Math.abs(p.y) > 1.5) {
+                    p.life = 0;
+                }
+            }
+        });
+    }
+}
 
 
     // Expose public functions
@@ -332,6 +517,10 @@ function createSmoke() {
         createRedExplode,
         createLeaves,
         createVolcanoSpray,
-        createSmoke
+        createSmoke,
+        createSnow,
+        createSparkle,
+        createLightning,
+        createStarfield
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
