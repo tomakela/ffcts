@@ -542,6 +542,77 @@ function createEnergyBall() {
     }
 }
 
+function createSonicBoom() {
+    const numParticles = 120;
+    const aspectRatio =  canvas.height / canvas.width;
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = (i / numParticles) * 2 * Math.PI;
+        const speed = 0.02 + Math.random() * 0.005;
+
+        const vx = Math.cos(angle) * speed * aspectRatio;
+        const vy = Math.sin(angle) * speed;
+
+        particles.push({
+            x: 0,
+            y: 0,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: [0.8, 0.9, 1.0, 0.9], // light blue-white shock
+            size: 3 + Math.random() * 3,
+            fadeSpeed: 0.01 + Math.random() * 0.005,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                // Optional trailing effect:
+                p.size *= 1.02; // expand slightly
+                p.color[3] *= 0.98; // fade alpha
+            }
+        });
+    }
+}
+
+function createFountain() {
+    const numParticles = 120;
+    const aspectRatio = canvas.height / canvas.width;
+    const gravity = -0.0005;  // gentle downward pull (y axis inverted)
+
+    for (let i = 0; i < numParticles; i++) {
+        // More clustered angles for splash shape:
+        let angle = (Math.random() - 0.5) * Math.PI * 1.5; // spread roughly in an arc
+        if (Math.random() < 0.3) angle += Math.PI; // some backwards splash particles
+
+        const speed = 0.003 + Math.random() * 0.001;
+
+        let vx = Math.cos(angle) * speed * aspectRatio;
+        let vy = Math.sin(angle) * speed;
+
+        // Add slight wobble in velocity to mimic droplets
+        vx += (Math.random() - 0.5) * 0.008;
+        vy += (Math.random() - 0.5) * 0.005 - 0.01;
+
+        particles.push({
+            x: 0,
+            y: 0,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: [0.95, 0.95, 0.95, 0.9], // bright white ink
+            size: 6 + Math.random() * 3,
+            fadeSpeed: 0.006 + Math.random() * 0.004,
+            update: function(p) {
+                p.vy -= gravity; // gravity pulls droplets down
+                p.x += p.vx;
+                p.y += p.vy;
+                p.color[3] -= p.fadeSpeed; // fade out gradually
+                p.size *= 0.97; // shrink slower for more visible droplets
+            }
+        });
+    }
+}
+
+
     // Expose public functions
     return {
         createOrangeBurst,
@@ -555,6 +626,8 @@ function createEnergyBall() {
         createSparkle,
         createLightning,
         createStarfield,
-        createEnergyBall
+        createEnergyBall,
+        createSonicBoom,
+        createFountain
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)

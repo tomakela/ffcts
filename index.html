@@ -53,6 +53,8 @@
       { key: "0", label: "Lightning", action: particleModule.createLightning },
       { key: "q", label: "Starfield", action: particleModule.createStarfield },
       { key: "w", label: "Energy ball", action: particleModule.createEnergyBall },
+      { key: "e", label: "Sonic boom", action: particleModule.createSonicBoom },
+      { key: "r", label: "Fountain", action: particleModule.createFountain },
     ];
 
     const effectMap = {};
@@ -88,7 +90,7 @@ function updateInfoBox(key, isActive) {
     const toggledKeys = new Set();
 
     window.addEventListener("keydown", (e) => {
-
+      e.preventDefault();
       if (e.code === "Space") {
       const infoBox = document.getElementById("infoBox");
       if (infoBox.style.display === "none") {
