@@ -413,7 +413,7 @@ function updateSparkleOrigin() {
     currentSparkleCenterX = minX + Math.random() * (maxX - minX);
     currentSparkleCenterY = minY + Math.random() * (maxY - minY);
 
-    console.log(`Sparkle origin moved to: (${currentSparkleCenterX.toFixed(2)}, ${currentSparkleCenterY.toFixed(2)})`);
+    // console.log(`Sparkle origin moved to: (${currentSparkleCenterX.toFixed(2)}, ${currentSparkleCenterY.toFixed(2)})`);
 }
 
 // Call this once to set an initial position
@@ -508,6 +508,39 @@ function createStarfield() {
     }
 }
 
+function createEnergyBall() {
+    const numParticles = 150;
+    const aspectRatio = canvas.height / canvas.width ;
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = 0.4 + Math.random() * 0.4;
+        const speed = 0.01 + Math.random() * 0.005;
+        const clockwise = Math.random() < 0.5 ? 1 : -1;
+
+        particles.push({
+            angle: angle,
+            radius: radius,
+            x: Math.cos(angle) * radius * aspectRatio,
+            y: Math.sin(angle) * radius,
+            vx: 0,
+            vy: 0,
+            life: 1.0,
+            color: [0.3 + Math.random() * 0.7, 0.3, 1.0, 0.8], // bluish-purple glow
+            size: 1.5 + Math.random() * 2.5,
+            fadeSpeed: 0.002 + Math.random() * 0.002,
+            update: function (p) {
+                // Spin in circle
+                p.angle += clockwise * speed;
+                p.x = Math.cos(p.angle) * p.radius * aspectRatio;
+                p.y = Math.sin(p.angle) * p.radius;
+
+                // Pulse radius slightly
+                p.radius += Math.sin(performance.now() * 0.005 + i) * 0.0002;
+            }
+        });
+    }
+}
 
     // Expose public functions
     return {
@@ -521,6 +554,7 @@ function createStarfield() {
         createSnow,
         createSparkle,
         createLightning,
-        createStarfield
+        createStarfield,
+        createEnergyBall
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
