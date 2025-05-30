@@ -32,13 +32,7 @@
   <canvas id="glcanvas"></canvas>
   <div class="info-box" id="infoBox">
     Press keys for different effects: <br>
-    <span id="effect-1">1: Orange Burst</span> <br>
-    <span id="effect-2">2: Green Trail</span> <br>
-    <span id="effect-3">3: Blue Rain</span> <br>
-    <span id="effect-4">4: Red Explode</span> <br>
-    <span id="effect-5">5: Leaves</span> <br>
-    <span id="effect-6">6: Volcano</span> <br>
-    <span id="effect-7">7: Smoke</span> <br>
+    <div id="effectList"></div>
     Hold Alt for repeating effects, press again to toggle
   </div>
 
@@ -46,15 +40,27 @@
 
   <script>
     const activeEffects = new Map();
-    const effectMap = {
-      "1": particleModule.createOrangeBurst,
-      "2": particleModule.createGreenTrail,
-      "3": particleModule.createBlueRain,
-      "4": particleModule.createRedExplode,
-      "5": particleModule.createLeaves,
-      "6": particleModule.createVolcanoSpray,      
-      "7": particleModule.createSmoke,      
-    };
+    const effects = [
+      { key: "1", label: "Orange Burst", action: particleModule.createOrangeBurst },
+      { key: "2", label: "Green Trail", action: particleModule.createGreenTrail },
+      { key: "3", label: "Blue Rain", action: particleModule.createBlueRain },
+      { key: "4", label: "Red Explode", action: particleModule.createRedExplode },
+      { key: "5", label: "Leaves", action: particleModule.createLeaves },
+      { key: "6", label: "Volcano", action: particleModule.createVolcanoSpray },
+      { key: "7", label: "Smoke", action: particleModule.createSmoke },
+    ];
+
+    const effectMap = {};
+    effects.forEach(e => effectMap[e.key] = e.action);
+
+    const effectListEl = document.getElementById("effectList");
+    effects.forEach((e, i) => {
+      const span = document.createElement("span");
+      span.id = `effect-${i + 1}`;
+      span.textContent = `${e.key}: ${e.label}`;
+      effectListEl.appendChild(span);
+      effectListEl.appendChild(document.createElement("br"));
+    });
 
     function updateInfoBox(key, isActive) {
       const span = document.getElementById(`effect-${key}`);
