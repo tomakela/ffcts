@@ -656,6 +656,129 @@ function createDrippingGoo() {
     }
 }
 
+function createConfetti() {
+    const numParticles = 120;
+    const aspectRatio = canvas.width / canvas.height;
+    const gravity = -0.0001;
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = (Math.random() * 2 * Math.PI);
+        const speed = 0.005 + Math.random() * 0.002;
+
+        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vy = -Math.abs(Math.sin(angle) * speed) * 0.5 - 0.002;
+
+        const colorOptions = [
+            [1.0, 0.2, 0.2], // red
+            [0.2, 1.0, 0.2], // green
+            [0.2, 0.6, 1.0], // blue
+            [1.0, 0.8, 0.2], // yellow
+            [0.8, 0.2, 1.0], // purple
+            [0.2, 1.0, 1.0], // cyan
+        ];
+
+        const color = colorOptions[Math.floor(Math.random() * colorOptions.length)];
+
+        particles.push({
+            x: (Math.random() * 2 - 1),
+            y: -1.0 + Math.random() * 0.2,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: [...color, 1.0],
+            size: 3 + Math.random() * 3,
+            angle: Math.random() * 2 * Math.PI,
+            spin: (Math.random() - 0.5) * 0.2,
+            fadeSpeed: 0.001 + Math.random() * 0.001,
+            update: function(p) {
+                p.vy -= gravity;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.angle += p.spin; // optional: for rotating visuals
+                p.color[3] -= p.fadeSpeed;
+            }
+        });
+    }
+}
+
+function createBeeSwarm() {
+    const numParticles = 80;
+    const centerX = 0;
+    const centerY = 0;
+    const aspectRatio = canvas.height / canvas.width ;
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = 0.1 + Math.random() * 0.2;
+        const speed = 0.02 + Math.random() * 0.01;
+
+        const orbitSpeed = (Math.random() < 0.5 ? -1 : 1) * (0.02 + Math.random() * 0.01);
+
+        particles.push({
+            angle: angle,
+            radius: radius,
+            orbitSpeed: orbitSpeed,
+            x: centerX + Math.cos(angle) * radius,
+            y: centerY + Math.sin(angle) * radius,
+            vx: 0,
+            vy: 0,
+            life: 1.0,
+            color: [1.0, 0.85, 0.0, 1.0], // bee-yellow
+            size: 3 + Math.random() * 1.5,
+            jitter: 0.002 + Math.random() * 0.003,
+            update: function(p) {
+                p.angle += p.orbitSpeed;
+                const jitterX = (Math.random() - 0.5) * p.jitter / aspectRatio;
+                const jitterY = (Math.random() - 0.5) * p.jitter;
+                p.x = centerX + Math.cos(p.angle) * p.radius + jitterX;
+                p.y = centerY + Math.sin(p.angle) * p.radius + jitterY;
+            }
+        });
+    }
+}
+
+function createFlyBurst() {
+    const numParticles = 150;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 0.003 + Math.random() * 0.002;
+
+        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vy = Math.sin(angle) * speed;
+
+        particles.push({
+            x: -1 + Math.random() * 2,   // Random X in [-1, 1]
+            y: -1 + Math.random() * 2,   // Random Y in [-1, 1]
+            vx: vx,
+            vy: vy,
+            life: 2,  // effectively infinite
+            color: [1.0, 1.0, 1.0, 0.8], // white flies (visible on black bg)
+            size: 1.8 + Math.random() * 1.2,
+            directionChange: 0.1 + Math.random() * 0.1,
+            update: function(p) {
+                const angle = Math.atan2(p.vy, p.vx);
+                const newAngle = angle + (Math.random() - 0.5) * p.directionChange;
+                const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+
+                p.vx = Math.cos(newAngle) * speed;
+                p.vy = Math.sin(newAngle) * speed;
+
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Optional wrap around
+                if (p.x < -1) p.x = 1;
+                if (p.x > 1) p.x = -1;
+                if (p.y < -1) p.y = 1;
+                if (p.y > 1) p.y = -1;
+            }
+        });
+    }
+}
+
+
 
     // Expose public functions
     return {
@@ -673,6 +796,9 @@ function createDrippingGoo() {
         createEnergyBall,
         createSonicBoom,
         createFountain,
-        createDrippingGoo
+        createDrippingGoo,
+        createConfetti,
+        createBeeSwarm,
+        createFlyBurst
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
