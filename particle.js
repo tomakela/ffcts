@@ -1327,6 +1327,450 @@ function createVoidTendrils() {
     }
 }
 
+function createMicroOrbit() {
+    const numCenters = 5 + Math.floor(Math.random() * 5); // 5–9 orbit centers
+    const particlesPerCenter = 12;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numCenters; i++) {
+        const centerX = -0.8 + Math.random() * 1.6; // X range from -0.8 to 0.8
+        const centerY = -0.8 + Math.random() * 1.6; // Y range from -0.8 to 0.8
+        const baseRadius = 0.05 + Math.random() * 0.1;
+        const direction = Math.random() < 0.5 ? 1 : -1; // clockwise or counterclockwise
+
+        for (let j = 0; j < particlesPerCenter; j++) {
+            const angleOffset = (j / particlesPerCenter) * 2 * Math.PI;
+            const rotationSpeed = 0.01 + Math.random() * 0.01;
+
+            particles.push({
+                centerX: centerX,
+                centerY: centerY,
+                angle: angleOffset,
+                radius: baseRadius + Math.random() * 0.02,
+                rotationSpeed: rotationSpeed * direction,
+                life: 1.0,
+                color: [
+                    0.7 + Math.random() * 0.3, // soft white to pale blue
+                    0.7 + Math.random() * 0.3,
+                    1.0,
+                    0.7 + Math.random() * 0.3
+                ],
+                size: 2 + Math.random() * 1,
+                fadeSpeed: 0.001,
+                update: function (p) {
+                    p.angle += p.rotationSpeed;
+                    p.x = p.centerX + Math.cos(p.angle) * p.radius / aspectRatio;
+                    p.y = p.centerY + Math.sin(p.angle) * p.radius;
+                    p.color[3] -= p.fadeSpeed;
+                }
+            });
+        }
+    }
+}
+
+function createScannerSweep() {
+    const numParticles = 80;
+    const aspectRatio = canvas.width / canvas.height;
+
+    // Sweep starts from the left and goes to the right horizontally
+    const sweepY = -0.5 + Math.random(); // Random horizontal line (across height)
+
+    for (let i = 0; i < numParticles; i++) {
+        // Place particles along a vertical sweep line
+        const startX = -1.0 + Math.random() * 2.0; // Across full width
+        const startY = sweepY + (Math.random() - 0.5) * 0.02; // Tight band
+
+        const speed = 0.002 + Math.random() * 0.002;
+        const vx = 0.001 + Math.random() * 0.0015;
+        const vy = 0; // moves horizontally
+
+        const color = [
+            0.2 + Math.random() * 0.2, // bluish-green scanner tone
+            1.0,
+            0.4 + Math.random() * 0.2,
+            0.9
+        ];
+
+        particles.push({
+            x: startX,
+            y: startY,
+            vx: vx / aspectRatio,
+            vy: vy,
+            life: 1.0,
+            color: color,
+            size: 1.5 + Math.random() * 1.5,
+            fadeSpeed: 0.005 + Math.random() * 0.004,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                p.color[3] -= p.fadeSpeed;
+
+                // Slight glow pulse effect
+                if (Math.random() < 0.02) {
+                    p.size *= 1.05;
+                }
+            }
+        });
+    }
+}
+
+function createGlitchDust() {
+    const numParticles = 60;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        const x = -0.9 + Math.random() * 1.8;
+        const y = -0.9 + Math.random() * 1.8;
+
+        particles.push({
+            x: x,
+            y: y,
+            vx: 0,
+            vy: 0,
+            life: 1.0,
+            color: [
+                0.8 + Math.random() * 0.2, // white-ish or glitchy RGB
+                0.4 + Math.random() * 0.6,
+                Math.random(),
+                0.9
+            ],
+            size: 1 + Math.random() * 2,
+            fadeSpeed: 0.007 + Math.random() * 0.007,
+            update: function (p) {
+                if (Math.random() < 0.2) {
+                    p.x += (Math.random() - 0.5) * 0.02 / aspectRatio;
+                    p.y += (Math.random() - 0.5) * 0.02;
+                }
+                p.color[3] -= p.fadeSpeed;
+                if (Math.random() < 0.1) {
+                    p.size = 0.5 + Math.random();
+                }
+            }
+        });
+    }
+}
+
+function createDust() {
+    const numParticles = 100;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const radius = Math.random() * .8;
+        const x = Math.cos(angle) * radius;
+        const y = Math.sin(angle) * radius;
+
+        const speed = 0.001 + Math.random() * 0.001;
+        const dir = Math.random() * 2 * Math.PI;
+        const vx = Math.cos(dir) * speed / aspectRatio;
+        const vy = Math.sin(dir) * speed;
+
+        particles.push({
+            x: x,
+            y: y,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: [0.6, 0.8, 1.0, 0.6 + Math.random() * 0.3],
+            size: 1 + Math.random() * 1.5,
+            fadeSpeed: 0.002 + Math.random() * 0.002,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Create a swirl
+                const temp = p.vx;
+                p.vx = -p.vy * 0.98;
+                p.vy = temp * 0.98;
+
+                p.color[3] -= p.fadeSpeed;
+            }
+        });
+    }
+}
+
+function createMazeCrawler() {
+    const numParticles = 40;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        // Start near center or slightly offset
+        const startX = (Math.random() * 2-1) * 1;
+        const startY = (Math.random() * 2-1) * 1;
+
+        const speed = 0.002;
+
+        // Start in a cardinal direction (up/down/left/right)
+        const directions = [
+            [speed, 0],
+            [-speed, 0],
+            [0, speed],
+            [0, -speed]
+        ];
+        let [vx, vy] = directions[Math.floor(Math.random() * directions.length)];
+
+        const color = [0.8, 0.8, 0.9, 1.0]; // Soft gray-white-blue
+
+        particles.push({
+            x: startX,
+            y: startY,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: color,
+            size: 1.5 + Math.random() * 1.5,
+            fadeSpeed: 0.003 + Math.random() * 0.002,
+            stepsSinceTurn: 0,
+            update: function (p) {
+                p.x += p.vx / aspectRatio;
+                p.y += p.vy;
+
+                // Change direction every few frames to simulate turns
+                p.stepsSinceTurn++;
+                if (p.stepsSinceTurn > 10 + Math.random() * 20) {
+                    const newDir = directions[Math.floor(Math.random() * directions.length)];
+                    p.vx = newDir[0];
+                    p.vy = newDir[1];
+                    p.stepsSinceTurn = 0;
+                }
+
+                // Fade and maybe shrink a little
+                p.color[3] -= p.fadeSpeed;
+                p.size *= 0.995;
+            }
+        });
+    }
+}
+
+function createFallingEmbers() {
+    const numParticles = 60;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        const startX = (Math.random() * 2 - 1) * 0.9;
+        const startY = 1 + Math.random() * 0.2; // start just above visible area
+
+        const vx = (Math.random() - 0.5) * 0.0003; // slight horizontal drift
+        const vy = - (0.001 + Math.random() * 0.0015); // downward falling
+
+        const colorPalette = [
+            [1.0, 0.5, 0.0, 1.0],  // bright orange
+            [1.0, 0.3, 0.0, 1.0],  // fiery red-orange
+            [1.0, 0.7, 0.2, 1.0],  // warm yellow-orange
+        ];
+
+        const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+
+        particles.push({
+            x: startX,
+            y: startY,
+            vx: vx,
+            vy: vy,
+            life: 1.2,
+            color: color,
+            size: 2 + Math.random() * 2,
+            fadeSpeed: 0.004 + Math.random() * 0.002,
+ update: function(p) {
+    p.x += p.vx;
+    p.y += p.vy;
+
+    p.color[3] -= p.fadeSpeed;
+
+    p.size += (Math.random() - 0.5) * 0.3;
+    if (p.size < 0.5) p.size = 0.5;  // clamp minimum size
+
+    if (p.y < -1 || p.color[3] <= 0) {
+        p.x = (Math.random() * 2 - 1) * 0.9;
+        p.y = 1 + Math.random() * 0.2;
+        p.color[3] = 1.0;
+        p.size = 2 + Math.random() * 2;
+    }
+}
+
+        });
+    }
+}
+
+function createSolarFlareRibbon() {
+    const numParticles = 150;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        const baseAngle = (i / numParticles) * 4 * Math.PI; // multiple loops
+        const radius = 0.6 + Math.random() * 0.2;
+        const speed = 0.005 + Math.random() * 0.003;
+
+        // Spiral motion around center with flickering radius
+        let angleOffset = Math.random() * 0.5;
+
+        const colorPalette = [
+            [1.0, 0.6, 0.1, 1.0], // bright orange
+            [1.0, 0.3, 0.0, 1.0], // fiery red
+            [1.0, 0.8, 0.3, 1.0], // golden yellow
+            [1.0, 0.9, 0.5, 1.0]  // soft yellow
+        ];
+        const color = colorPalette[Math.floor(Math.random() * colorPalette.length)];
+
+        particles.push({
+            angle: baseAngle + angleOffset,
+            radius: radius,
+            angularSpeed: speed,
+            size: 3 + Math.random() * 2,
+            color: color,
+            life: 1.0,
+            fadeSpeed: 0.008 + Math.random() * 0.006,
+            update: function(p) {
+                p.angle += p.angularSpeed;
+                // flicker radius slightly
+                p.radius += (Math.sin(p.angle * 10) * 0.005);
+
+                // polar to cartesian, adjust for aspect ratio
+                p.x = Math.cos(p.angle) * p.radius / aspectRatio;
+                p.y = Math.sin(p.angle) * p.radius;
+
+                p.color[3] -= p.fadeSpeed;
+                p.size *= 0.96;
+
+                // subtle glow pulse
+                if (Math.random() < 0.05) {
+                    p.color[3] = Math.min(p.color[3] + 0.1, 1.0);
+                }
+            }
+        });
+    }
+}
+
+function createElectricVeins() {
+    const numParticles = 100;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        // Start near center but with random offset to simulate vein origins
+        const startX = (Math.random()*2 - 1) * 1;
+        const startY = (Math.random()*2- 1) * 1;
+
+        // Velocity biased to create branching veins effect
+        let vx = (Math.random() - 0.5) * 0.01 / aspectRatio;
+        let vy = (Math.random() - 0.5) * 0.006;
+
+        // Colors in electric blue / cyan palette
+        const palette = [
+            [0.3, 0.9, 1.0, 1.0],
+            [0.1, 0.7, 1.0, 1.0],
+            [0.2, 0.8, 1.0, 1.0],
+            [0.4, 1.0, 1.0, 1.0]
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: startX,
+            y: startY,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            size: 1.5 + Math.random(),
+            color: color,
+            fadeSpeed: 0.01 + Math.random() * 0.005,
+            update: function(p) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Branching behavior: occasionally split velocity slightly
+                if (Math.random() < 0.03) {
+                    p.vx += (Math.random() - 0.5) * 0.004 / aspectRatio;
+                    p.vy += (Math.random() - 0.5) * 0.004;
+                }
+
+                // Slight oscillation to mimic electric pulses
+                p.vx += Math.sin(Date.now() * 0.005 + p.x * 10) * 0.0004 / aspectRatio;
+                p.vy += Math.cos(Date.now() * 0.005 + p.y * 10) * 0.0004;
+
+                p.color[3] -= p.fadeSpeed;
+                p.size *= 0.98;
+            }
+        });
+    }
+}
+
+function createAuroraVeil() {
+    const numParticles = 120;
+    const aspectRatio = canvas.width / canvas.height;
+    const baseHue = Math.random() * 360;
+
+    for (let i = 0; i < numParticles; i++) {
+        // Start positions along vertical "veil" with slight horizontal drift
+        const x = (Math.random() * 2 - 1) ; // centered horizontally
+        const y = Math.random() * 2 - 1; // vertical range [-1,1]
+
+        // Vertical velocity flowing gently upward with some oscillation
+        const vy = 0.001 + Math.random() * 0.0015;
+        const vx = Math.sin(y * 10 + Math.random() * Math.PI) * 0.0006;
+
+        // Color cycling smoothly through green, blue, purple hues with alpha flicker
+        const hue = (baseHue + i * (360 / numParticles)) % 360;
+
+        // Convert hue to RGB using HSL to RGB helper function
+        const color = hslToRgb(hue / 360, 0.7, 0.5);
+        const alpha = 0.5 + Math.random() * 0.3;
+
+        particles.push({
+            x: x,
+            y: y,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            size: 2 + Math.random() * 2,
+            fadeSpeed: 0.002 + Math.random() * 0.003,
+            color: [color.r, color.g, color.b, alpha],
+            update: function(p) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Horizontal oscillation to mimic flowing waves
+                p.vx = Math.sin(p.y * 10 + Date.now() * 0.002 + i) * 0.0007;
+
+                // Wrap around vertically for continuous effect
+                if (p.y > 1) p.y = -1;
+
+                // Slowly fade out and shrink slightly
+                p.color[3] -= p.fadeSpeed;
+                p.size *= 0.98;
+
+                if (p.color[3] <= 0) {
+                    p.color[3] = 0;
+                    p.life = 0;
+                }
+            }
+        });
+    }
+
+    // Helper function to convert HSL to RGB (normalized 0-1)
+    function hslToRgb(h, s, l) {
+        let r, g, b;
+
+        if (s === 0) {
+            r = g = b = l; // achromatic
+        } else {
+            const hue2rgb = function(p, q, t) {
+                if (t < 0) t += 1;
+                if (t > 1) t -= 1;
+                if (t < 1/6) return p + (q - p) * 6 * t;
+                if (t < 1/2) return q;
+                if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                return p;
+            };
+
+            const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+            const p = 2 * l - q;
+            r = hue2rgb(p, q, h + 1/3);
+            g = hue2rgb(p, q, h);
+            b = hue2rgb(p, q, h - 1/3);
+        }
+
+        return { r, g, b };
+    }
+}
 
     // Expose public functions
     return {
@@ -1359,6 +1803,15 @@ function createVoidTendrils() {
         createRainbowBurst,
         createNovaShock,
         createMoldCreep,
-        createVoidTendrils
+        createVoidTendrils,
+        createMicroOrbit,
+        createScannerSweep,
+        createGlitchDust,
+        createDust,
+        createMazeCrawler,
+        createFallingEmbers,
+        createSolarFlareRibbon,
+        createElectricVeins,
+        createAuroraVeil
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
