@@ -51,6 +51,7 @@ const particleModule = (() => {
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.disable(gl.SCISSOR_TEST);
     }
+    
 
     /**
      * Updates particle positions and draws them.
@@ -778,7 +779,142 @@ function createFlyBurst() {
     }
 }
 
+function createPlasmaBurst() {
+    const numParticles = 180;
+    const aspectRatio = canvas.width / canvas.height;
 
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 0.01 + Math.random() * 0.015;
+
+        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vy = Math.sin(angle) * speed;
+
+        // Plasma-like neon hues: purples, cyans, pinks, electric blues
+        const palette = [
+            [1.0, 0.2, 1.0, 1.0], // Magenta
+            [0.4, 0.8, 1.0, 1.0], // Electric blue
+            [0.8, 0.1, 0.8, 1.0], // Purple
+            [0.6, 1.0, 0.9, 1.0], // Aqua
+            [1.0, 0.5, 1.0, 1.0]  // Hot pink
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: 0,
+            y: 0,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: color,
+            size: 3 + Math.random() * 4,
+            fadeSpeed: 0.01 + Math.random() * 0.01,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.color[3] -= p.fadeSpeed; // fade alpha
+                p.size *= 1.02; // slowly grow
+            }
+        });
+    }
+}
+
+function createMagneticRays() {
+    const numParticles = 120;
+    const aspectRatio = canvas.width / canvas.height;
+    const frequency = 3 + Math.random() * 2; // affects wave density
+    const amplitude = 0.15 + Math.random() * 0.1;
+
+    for (let i = 0; i < numParticles; i++) {
+        const direction = Math.random() < 0.5 ? -1 : 1; // left or right
+        const baseX = direction * (0.4 + Math.random() * 0.1); // spawn near poles
+        const y = -0.9 + Math.random() * 1.8; // full vertical range
+
+        const speed = 0.004 + Math.random() * 0.004;
+        const phase = Math.random() * 2 * Math.PI;
+
+        const palette = [
+            [0.4, 1.0, 1.0, 1.0], // Cyan
+            [0.2, 0.9, 0.8, 1.0], // Aqua
+            [0.5, 0.8, 1.0, 1.0], // Electric Blue
+            [0.6, 1.0, 0.6, 1.0], // Light green
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: baseX,
+            y: y,
+            vx: 0,
+            vy: 0,
+            baseX: baseX,
+            phase: phase,
+            direction: direction,
+            frequency: frequency,
+            amplitude: amplitude,
+            speed: speed,
+            color: color,
+            size: 2.5 + Math.random() * 2,
+            life: 1.0,
+            fadeSpeed: 0.005 + Math.random() * 0.005,
+            update: function (p) {
+                p.y += p.speed;
+                p.x = p.baseX + Math.sin(p.y * p.frequency + p.phase) * p.amplitude;
+                p.color[3] -= p.fadeSpeed; // alpha fade
+            }
+        });
+    }
+}
+
+function createCherryBloom() {
+    const numParticles = 100;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        // Parametric heart shape for initial velocity direction
+        const t = Math.random() * 2 * Math.PI;
+        // Heart shape parametric equations
+        const heartScale = 0.02; // Adjust scale for heart size of the bloom
+        const x = heartScale * 16 * Math.pow(Math.sin(t), 3);
+        const y = -heartScale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+
+        // Random speed for outward explosion
+        const speed = 0.004 + Math.random() * 0.006;
+        // Normalize direction based on heart shape
+        const magnitude = Math.sqrt(x * x + y * y);
+        const vx = (x / magnitude) * speed / aspectRatio;
+        const vy = (y / magnitude) * speed;
+
+        const palette = [
+            [1.0, 0.4, 0.6, 1.0], // Rose red
+            [1.0, 0.6, 0.8, 1.0], // Pink
+            [1.0, 0.75, 0.8, 1.0], // Soft blush
+            [0.95, 0.3, 0.4, 1.0], // Deep red
+            [1.0, 0.5, 0.5, 1.0], // Coral
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: 0,
+            y: 0,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            size: 4 + Math.random() * 4,
+            maxSize: 10 + Math.random() * 8,
+            fadeSpeed: 0.007 + Math.random() * 0.005,
+            color: color,
+            rotation: Math.random() * 2 * Math.PI,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.color[3] -= p.fadeSpeed;
+                if (p.size < p.maxSize) p.size *= 1.02;
+                p.rotation += 0.05;
+            },
+            shape: 'heart' // Key addition: explicitly set shape to 'heart'
+        });
+    }
+}
 
     // Expose public functions
     return {
@@ -799,6 +935,9 @@ function createFlyBurst() {
         createDrippingGoo,
         createConfetti,
         createBeeSwarm,
-        createFlyBurst
+        createFlyBurst,
+        createPlasmaBurst,
+        createMagneticRays,
+        createCherryBloom
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
