@@ -25,7 +25,7 @@
       border-radius: 8px;
       font-size: 0.9rem;
       border: 1px solid #333;
-      /*display: "none";*/
+      display: none;
     }
   </style>
 </head>
@@ -34,24 +34,17 @@
   <div class="info-box" id="infoBox">
     Press keys for different effects: <br>
     <div id="effectList"></div>
-    Hold Alt for repeating effects, press again to toggle
+    Hold Alt for repeating effects, press again to toggle<br>
+    Press F5 to refresh the page<br>
+    Press F11 for full screen<br>
+    Press Enter to clear repeating effects
   </div>
 
   <script src="particle.js"></script>
 
   <script>
     const activeEffects = new Map();
-    /* old
-    const effects = [
-      { key: "1", label: "Orange Burst", action: particleModule.createOrangeBurst },
-      { key: "2", label: "Green Trail", action: particleModule.createGreenTrail },
-      { key: "3", label: "Blue Rain", action: particleModule.createBlueRain },
-      { key: "4", label: "Red Explode", action: particleModule.createRedExplode },
-      { key: "5", label: "Leaves", action: particleModule.createLeaves },
-    ];
-    */
 
-    // new
     const keys = "1234567890qwertyuiopåasdfghjklöäzxcvbnm";
 
     const effects = Object.entries(particleModule).map(([funcName], index) => {
@@ -100,12 +93,13 @@
     const toggledKeys = new Set();
 
     window.addEventListener("keydown", (e) => {
-      if (!e.key.startsWith("F")) {
+      if (e.key != "F5" && e.key != "F11") {
         e.preventDefault(); // Prevent default browser actions for other keys
             }
       if (e.code === "Space") {
       const infoBox = document.getElementById("infoBox");
-      if (infoBox.style.display === "none") {
+      const isHidden = getComputedStyle(infoBox).display === "none";
+      if (isHidden) {
         infoBox.style.display = "block";
       } else {
         infoBox.style.display = "none";
