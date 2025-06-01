@@ -114,14 +114,14 @@ const particleModule = (() => {
         const x = (Math.random() * 2 - 1);
         const y = (Math.random() * 2 - 1);
         const maxSpeed = 0.01;
-        const aspectRatio = canvas.width / canvas.height;
+        const aspectRatio = canvas.height / canvas.width;
 
         for (let i = 0; i < numParticles; i++) {
             const angle = Math.random() * Math.PI * 2;
             const speed = Math.random() * maxSpeed;
             particles.push({
                 x: x, y: y,
-                vx: Math.cos(angle) * speed / aspectRatio,
+                vx: Math.cos(angle) * speed * aspectRatio,
                 vy: Math.sin(angle) * speed,
                 life: 1.0,
                 color: [1.0, 0.6, 0.2], // Warm Orange
@@ -141,13 +141,13 @@ const particleModule = (() => {
         const y = (Math.random() * 2 - 1); // Random start Y
         const maxSpeed = 0.005;
         const trailDirection = Math.random() * Math.PI * 2; // Simulate a trail direction
-        const aspectRatio = canvas.width / canvas.height;
+        const aspectRatio = canvas.height / canvas.width;
 
         for (let i = 0; i < numParticles; i++) {
             const speed = Math.random() * maxSpeed;
             particles.push({
                 x: x, y: y,
-                vx: Math.cos(trailDirection) * speed / aspectRatio,
+                vx: Math.cos(trailDirection) * speed * aspectRatio,
                 vy: Math.sin(trailDirection) * speed,
                 life: 1.0,
                 color: [0.2, 1.0, 0.6], // Cool Green
@@ -194,14 +194,14 @@ const particleModule = (() => {
         const x = (Math.random() * 2 - 1);
         const y = (Math.random() * 2 - 1);
         const maxInitialSpeed = 0.01; // Very fast initial speed
-        const aspectRatio = canvas.width / canvas.height;
+        const aspectRatio = canvas.height / canvas.width;
 
         for (let i = 0; i < numParticles; i++) {
             const angle = Math.random() * Math.PI * 2;
             const speed = Math.random() * maxInitialSpeed;
             particles.push({
                 x: x, y: y,
-                vx: Math.cos(angle) * speed / aspectRatio,
+                vx: Math.cos(angle) * speed * aspectRatio,
                 vy: Math.sin(angle) * speed,
                 life: 1.0,
                 color: [1.0, 0.0, 0.0], // Pure Red
@@ -218,7 +218,7 @@ const particleModule = (() => {
         const startY = -1.0; // Bottom of the WebGL canvas
         const maxUpwardSpeed = 0.006; // Upward velocity range
         const wobbleAmplitude = 0.0002; // Side-to-side wobble
-        const aspectRatio = canvas.width / canvas.height;
+        const aspectRatio = canvas.height / canvas.width;
 
         for (let i = 0; i < numParticles; i++) {
             // Randomly select a warm color (red, orange, yellow)
@@ -229,7 +229,7 @@ const particleModule = (() => {
             particles.push({
                 x: minX + Math.random() * (maxX - minX), // Random X within base
                 y: startY,
-                vx: (Math.random() - 0.5) * 0.002 / aspectRatio, // Slight horizontal drift
+                vx: (Math.random() - 0.5) * 0.002 * aspectRatio, // Slight horizontal drift
                 vy: 0.002 + Math.random() * maxUpwardSpeed, // Upward velocity
                 life: 1.0,
                 color: color,
@@ -237,7 +237,7 @@ const particleModule = (() => {
                 fadeSpeed: 0.004, // Moderate fade for flame-like decay
                 update: function(p) { // Custom update for fire
                     // Add slight side-to-side wobble
-                    p.vx += Math.sin(Date.now() * 0.02 + p.x) * wobbleAmplitude / aspectRatio;
+                    p.vx += Math.sin(Date.now() * 0.02 + p.x) * wobbleAmplitude * aspectRatio;
                     p.x += p.vx;
                     p.y += p.vy;
                 }
@@ -251,14 +251,14 @@ function createVolcanoSpray() {
     const maxX = 0.05;
     const startY = 0; // Bottom of WebGL canvas
     const maxUpwardSpeed = -0.03;
-    const aspectRatio = canvas.width / canvas.height;
+    const aspectRatio = canvas.height / canvas.width;
     const gravity = 0.0004;
 
     for (let i = 0; i < numParticles; i++) {
         // Slight cone spread
         const angle = (Math.random() - 0.5) * (Math.PI / 4) + Math.PI / 2; // Spray upward ±22.5°
         const speed = 0.005 + Math.random() * maxUpwardSpeed;
-        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vx = Math.cos(angle) * speed * aspectRatio;
         const vy = Math.sin(angle) * speed;
 
         // Color: glowing lava tones (red-orange-yellow)
@@ -291,13 +291,14 @@ function createSmoke() {
     const minX = -0.02-ox;
     const maxX = 0.02-ox;
     const startY = 0.8;
-    const aspectRatio = canvas.width / canvas.height;
+    const aspectRatio = canvas.height / canvas.width;
+
     const gravity = 0.00005; // Slight upward lift (negative gravity)
 
     for (let i = 0; i < numParticles; i++) {
         const angle = (Math.random() - 0.5) * Math.PI / 6; // ±15° horizontal spread
         const speed = 0.001 + Math.random() * 0.002;
-        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vx = Math.cos(angle) * speed * aspectRatio;
         const vy = Math.sin(angle) * speed + 0.002; // Gentle upward drift
 
         // Color: soft grayish tones for smoke
@@ -327,7 +328,7 @@ function createSnow() {
     const minX = -1.0;
     const maxX = 1.0;
     const startY = -1.0;
-    const aspectRatio = canvas.width / canvas.height;
+    const aspectRatio = canvas.height / canvas.width;
 
     for (let i = 0; i < numParticles; i++) {
         const baseX = minX + Math.random() * (maxX - minX);
@@ -350,7 +351,7 @@ function createSnow() {
             update: function (p) {
                 p.time += 0.01;
                 p.y -= p.fallSpeed;
-                p.x = p.baseX + Math.sin(p.time * p.driftFrequency) * p.driftAmplitude / aspectRatio;
+                p.x = p.baseX + Math.sin(p.time * p.driftFrequency) * p.driftAmplitude * aspectRatio;
             }
         });
     }
@@ -431,8 +432,8 @@ function createLightning() {
     const startY = -1.0;  // top of canvas (correct)
     const endY = 1.0;   // bottom of canvas
     const segmentLength = 0.05;
-    const maxOffset = 0.03;
-    const aspectRatio = canvas.width / canvas.height;
+    const maxOffset = 0.09;
+    const aspectRatio = canvas.height / canvas.width;
 
     const lightningPoints = [];
     let currentX = startX;
@@ -659,14 +660,14 @@ function createDrippingGoo() {
 
 function createConfetti() {
     const numParticles = 120;
-    const aspectRatio = canvas.width / canvas.height;
+    const aspectRatio = canvas.height / canvas.width;
     const gravity = -0.0001;
 
     for (let i = 0; i < numParticles; i++) {
         const angle = (Math.random() * 2 * Math.PI);
         const speed = 0.005 + Math.random() * 0.002;
 
-        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vx = Math.cos(angle) * speed * aspectRatio;
         const vy = -Math.abs(Math.sin(angle) * speed) * 0.5 - 0.002;
 
         const colorOptions = [
@@ -729,7 +730,7 @@ function createBeeSwarm() {
             jitter: 0.002 + Math.random() * 0.003,
             update: function(p) {
                 p.angle += p.orbitSpeed;
-                const jitterX = (Math.random() - 0.5) * p.jitter / aspectRatio;
+                const jitterX = (Math.random() - 0.5) * p.jitter * aspectRatio;
                 const jitterY = (Math.random() - 0.5) * p.jitter;
                 p.x = centerX + Math.cos(p.angle) * p.radius + jitterX;
                 p.y = centerY + Math.sin(p.angle) * p.radius + jitterY;
@@ -740,13 +741,13 @@ function createBeeSwarm() {
 
 function createFlyBurst() {
     const numParticles = 150;
-    const aspectRatio = canvas.width / canvas.height;
+    const aspectRatio = canvas.height / canvas.width;
 
     for (let i = 0; i < numParticles; i++) {
         const angle = Math.random() * 2 * Math.PI;
         const speed = 0.003 + Math.random() * 0.002;
 
-        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vx = Math.cos(angle) * speed * aspectRatio;
         const vy = Math.sin(angle) * speed;
 
         particles.push({
@@ -781,13 +782,13 @@ function createFlyBurst() {
 
 function createPlasmaBurst() {
     const numParticles = 180;
-    const aspectRatio = canvas.width / canvas.height;
+    const aspectRatio = canvas.height / canvas.width;
 
     for (let i = 0; i < numParticles; i++) {
         const angle = Math.random() * 2 * Math.PI;
         const speed = 0.01 + Math.random() * 0.015;
 
-        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vx = Math.cos(angle) * speed * aspectRatio;
         const vy = Math.sin(angle) * speed;
 
         // Plasma-like neon hues: purples, cyans, pinks, electric blues
@@ -821,7 +822,7 @@ function createPlasmaBurst() {
 
 function createMagneticRays() {
     const numParticles = 120;
-    const aspectRatio = canvas.width / canvas.height;
+    const aspectRatio = canvas.height / canvas.width;
     const frequency = 3 + Math.random() * 2; // affects wave density
     const amplitude = 0.15 + Math.random() * 0.1;
 
@@ -867,7 +868,7 @@ function createMagneticRays() {
 
 function createCherryBloom() {
     const numParticles = 100;
-    const aspectRatio = canvas.width / canvas.height;
+    const aspectRatio = canvas.height / canvas.width;
 
     for (let i = 0; i < numParticles; i++) {
         // Parametric heart shape for initial velocity direction
@@ -881,7 +882,7 @@ function createCherryBloom() {
         const speed = 0.004 + Math.random() * 0.006;
         // Normalize direction based on heart shape
         const magnitude = Math.sqrt(x * x + y * y);
-        const vx = (x / magnitude) * speed / aspectRatio;
+        const vx = (x / magnitude) * speed * aspectRatio;
         const vy = (y / magnitude) * speed;
 
         const palette = [
@@ -916,6 +917,187 @@ function createCherryBloom() {
     }
 }
 
+function createLavaSpurt() {
+    const numParticles = 80;
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * Math.PI - Math.PI / 2; // upward arc
+        const speed = 0.005 + Math.random() * 0.015;
+
+        const vx = Math.cos(angle) * speed;
+        const vy = Math.sin(angle) * speed;
+
+        const palette = [
+            [1.0, 0.5, 0.0, 1.0], // Orange
+            [1.0, 0.2, 0.0, 1.0], // Red-orange
+            [1.0, 0.8, 0.2, 1.0], // Yellow-orange
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: -1,
+            y: -.25,
+            vx: vx,
+            vy: vy,
+            gravity: 0.0005,
+            color: color,
+            size: 4 + Math.random() * 3,
+            life: 1.0,
+            fadeSpeed: 0.01 + Math.random() * 0.01,
+            update: function (p) {
+                p.vy += p.gravity;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.color[3] -= p.fadeSpeed;
+            }
+        });
+    }
+}
+
+function createElectricPulse() {
+    const numParticles = 120;
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 0.005 + Math.random() * 0.01;
+
+        const jitter = () => (Math.random() - 0.5) * 0.01;
+
+        const palette = [
+            [0.6, 1.0, 1.0, 1.0], // Cyan
+            [0.9, 0.9, 1.0, 1.0], // Light violet
+            [0.2, 0.8, 1.0, 1.0], // Neon blue
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: 0,
+            y: 0,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            color: color,
+            size: 2 + Math.random() * 2,
+            life: 1.0,
+            fadeSpeed: 0.005 + Math.random() * 0.001,
+            update: function (p) {
+                p.x += p.vx + jitter();
+                p.y += p.vy + jitter();
+                p.color[3] -= p.fadeSpeed;
+            }
+        });
+    }
+}
+
+function createFrostCrystals() {
+    const aspectRatio =  canvas.height / canvas.width;
+    const numParticles = 90;
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 0.002 + Math.random() * 0.004;
+
+        const vx = Math.cos(angle) * speed*aspectRatio;
+        const vy = Math.sin(angle) * speed;
+
+        const palette = [
+            [0.9, 0.9, 1.0, 1.0], // Frost white
+            [0.6, 0.8, 1.0, 1.0], // Ice blue
+            [0.5, 0.9, 1.0, 1.0], // Crystal blue
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: 0,
+            y: 0,
+            vx: vx,
+            vy: vy,
+            color: color,
+            size: 3 + Math.random() * 3,
+            fadeSpeed: 0.0005 + Math.random() * 0.0005,
+            life: 1.0,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.size *= 0.98; // shrink
+                p.color[3] -= p.fadeSpeed;
+            }
+        });
+    }
+}
+
+function createNebulaCloud() {
+    const numParticles = 150;
+    const aspectRatio =  canvas.height / canvas.width;
+    const centerX = 0;
+    const centerY = 0;
+    const R = 0.2
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 0.001 + Math.random() * 0.003;
+
+        const palette = [
+            [1.0, 0.4, 0.7, 0.5], // Pink
+            [0.5, 0.7, 1.0, 0.5], // Purple-blue
+            [0.7, 1.0, 0.8, 0.5], // Mint
+            [0.9, 0.6, 1.0, 0.5], // Violet
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        const r = R * Math.sqrt(Math.random())
+        theta = Math.random() * 2 * Math.PI
+
+        const x = centerX + r * Math.cos(theta) * aspectRatio
+        const y = centerY + r * Math.sin(theta)
+
+        particles.push({
+            x: x,
+            y: y,
+            vx: Math.cos(angle) * speed * aspectRatio,
+            vy: Math.sin(angle) * speed,
+            color: color,
+            size: 2 + Math.random() * 2,
+            fadeSpeed: 0.001 + Math.random() * 0.001,
+            life: 1.0,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.size *= 1.005; // slow expansion
+                p.color[3] -= p.fadeSpeed;
+            }
+        });
+    }
+}
+
+function createMist() {
+    const numParticles = 120;
+    for (let i = 0; i < numParticles; i++) {
+        const speed = 0.0005 + Math.random() * 0.001;
+        const xStart = (Math.random() - 0.5) * .2;
+
+        const palette = [
+            [1.0, 1.0, 1.0, 0.2],
+            [0.8, 0.9, 1.0, 0.15],
+            [0.9, 0.9, 0.95, 0.18],
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: xStart,
+            y: 1.0,
+            vx: (Math.random() - 0.5) * 0.002,
+            vy: -speed,
+            color: color,
+            size: 2 + Math.random() * 3,
+            fadeSpeed: 0.0005 + Math.random() * 0.0005,
+            life: 1.0,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.color[3] -= p.fadeSpeed;
+            }
+        });
+    }
+}
+
+
     // Expose public functions
     return {
         createOrangeBurst,
@@ -938,6 +1120,11 @@ function createCherryBloom() {
         createFlyBurst,
         createPlasmaBurst,
         createMagneticRays,
-        createCherryBloom
+        createCherryBloom,
+        createLavaSpurt,
+        createElectricPulse,
+        createFrostCrystals,
+        createNebulaCloud,
+        createMist
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
