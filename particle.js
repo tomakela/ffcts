@@ -544,9 +544,37 @@ function createEnergyBall() {
     }
 }
 
+const activeTime = 50;   // time sparkle is active
+const inactiveTime = 100; // time before next activation
+let lastBoomTime = 0;      // timestamp of last boom
+const boomCooldown = 150;  // minimum ms between booms
+
+let canBoom = true;
+
+function sparklePulseLoop() {
+    updateSparkleOrigin(); // Active phase logic (start)
+    canBoom = true;
+    // Optional: Do something at the end of the active phase
+    setTimeout(() => {
+        canBoom = false;
+        // Inactive phase logic (end)
+    }, activeTime);
+
+    setTimeout(sparklePulseLoop, activeTime + inactiveTime); // Next cycle
+}
+
+sparklePulseLoop()
+
 function createSonicBoom() {
     const numParticles = 120;
     const aspectRatio =  canvas.height / canvas.width;
+
+    const now = performance.now();
+
+    // Skip check if enough time passed since last boom
+    if (!canBoom && (now - lastBoomTime) < boomCooldown) return;
+
+    lastBoomTime = now; // update last boom time
 
     for (let i = 0; i < numParticles; i++) {
         const angle = (i / numParticles) * 2 * Math.PI;
@@ -1097,6 +1125,208 @@ function createMist() {
     }
 }
 
+function createRainbowBurst() {
+    const numParticles = 150;
+    const aspectRatio = canvas.width / canvas.height;
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const speed = 0.008 + Math.random() * 0.01;
+
+        const vx = Math.cos(angle) * speed / aspectRatio;
+        const vy = Math.sin(angle) * speed;
+
+        const hue = Math.random(); // 0 to 1
+        const rgb = hsvToRgb(hue, 1, 1); // Use helper if needed
+
+        particles.push({
+            x: 0,
+            y: 0,
+            vx: vx,
+            vy: vy,
+            color: [rgb[0], rgb[1], rgb[2], 1.0],
+            size: 7 + Math.random() * 7,
+            fadeSpeed: 0.01 + Math.random() * 0.01,
+            life: 1.0,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.size *= 1.01;
+                p.color[3] -= p.fadeSpeed;
+            }
+        });
+    }
+
+    function hsvToRgb(h, s, v) {
+        let r, g, b;
+        const i = Math.floor(h * 6);
+        const f = h * 6 - i;
+        const p = v * (1 - s);
+        const q = v * (1 - f * s);
+        const t = v * (1 - (1 - f) * s);
+        switch (i % 6) {
+            case 0: r = v; g = t; b = p; break;
+            case 1: r = q; g = v; b = p; break;
+            case 2: r = p; g = v; b = t; break;
+            case 3: r = p; g = q; b = v; break;
+            case 4: r = t; g = p; b = v; break;
+            case 5: r = v; g = p; b = q; break;
+        }
+        return [r, g, b];
+    }
+}
+
+function createNovaShock() {
+    const numParticles = 180;
+
+    for (let i = 0; i < numParticles; i++) {
+        const angle = Math.random() * 2 * Math.PI;
+        const baseSpeed = 0.008 + Math.random() * 0.012;
+        const vx = Math.cos(angle) * baseSpeed;
+        const vy = Math.sin(angle) * baseSpeed;
+
+        const isRing = Math.random() < 0.3; // Add ring particles
+        const palette = [
+            [1.0, 0.9, 0.7, 1.0], // Bright nova yellow
+            [1.0, 0.6, 0.3, 1.0], // Gold-orange
+            [1.0, 0.8, 0.4, 1.0], // Warm yellow
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        particles.push({
+            x: 0,
+            y: 0,
+            vx: vx,
+            vy: vy,
+            size: isRing ? 2 : 4 + Math.random() * 2,
+            ringGrowth: isRing ? 0.8 + Math.random() * 0.5 : 0,
+            ringDecay: isRing ? 0.005 + Math.random() * 0.005 : 0,
+            fadeSpeed: 0.01 + Math.random() * 0.008,
+            life: 1.0,
+            color: color,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.ringGrowth) {
+                    p.size += p.ringGrowth;
+                    p.color[3] -= p.ringDecay;
+                } else {
+                    p.size += 0.5;
+                    p.color[3] -= p.fadeSpeed;
+                }
+            }
+        });
+    }
+}
+
+function createMoldCreep() {
+    const numParticles = 80;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let i = 0; i < numParticles; i++) {
+        // Semi-random outward direction, but slightly biased (creepiness)
+        const angle = Math.random() * 2 * Math.PI;
+        const baseSpeed = 0.002 + Math.random() * 0.003;
+
+        const vx = Math.cos(angle) * baseSpeed / aspectRatio;
+        const vy = Math.sin(angle) * baseSpeed;
+
+        // Choose a color in moldy/organic hues: olive, green-gray, brownish
+        const palette = [
+            [0.4, 0.5, 0.3, 1.0],  // mossy green
+            [0.6, 0.6, 0.4, 1.0],  // gray-green
+            [0.3, 0.4, 0.2, 1.0],  // dark mold
+            [0.5, 0.5, 0.3, 1.0],  // olive
+            [0.2, 0.3, 0.15, 1.0]  // deep fungal
+        ];
+        const color = palette[Math.floor(Math.random() * palette.length)];
+
+        // Start particles near center but offset slightly
+        const startOffset = Math.random() * 0.02;
+        const startX = Math.cos(angle) * startOffset;
+        const startY = Math.sin(angle) * startOffset;
+
+        particles.push({
+            x: startX,
+            y: startY,
+            vx: vx,
+            vy: vy,
+            life: 1.0,
+            color: color,
+            size: 1 + Math.random() * 1.5,
+            fadeSpeed: 0.001 + Math.random() * 0.002,
+            update: function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                // Fade very slowly
+                p.color[3] -= p.fadeSpeed;
+
+                // Random chance to slightly change direction (organic motion)
+                if (Math.random() < 0.05) {
+                    const jitter = 0.0005;
+                    p.vx += (Math.random() - 0.5) * jitter;
+                    p.vy += (Math.random() - 0.5) * jitter;
+                }
+
+                // Slowly grow
+                p.size *= 1.01;
+            }
+        });
+    }
+}
+
+function createVoidTendrils() {
+    const numTendrils = 6 + Math.floor(Math.random() * 4); // 6–9 tendrils
+    const particlesPerTendril = 20;
+    const aspectRatio = canvas.width / canvas.height;
+
+    for (let t = 0; t < numTendrils; t++) {
+        const baseAngle = (Math.PI * 2 * t) / numTendrils;
+        const tendrilWiggle = 0.2; // randomness factor per segment
+
+        for (let i = 0; i < particlesPerTendril; i++) {
+            const progress = i / particlesPerTendril;
+            const angle = baseAngle + (Math.random() - 0.5) * tendrilWiggle;
+            const distance = progress * 0.3 + Math.random() * 0.01;
+
+            const startX = Math.cos(angle) * distance / aspectRatio;
+            const startY = Math.sin(angle) * distance;
+
+            const color = [
+                0.1 + Math.random() * 0.2, // very dark purple/black
+                0.0,
+                0.2 + Math.random() * 0.2,
+                0.6 + Math.random() * 0.2 // some transparency
+            ];
+
+            particles.push({
+                x: startX,
+                y: startY,
+                vx: 0,
+                vy: 0,
+                life: 1.0,
+                color: color,
+                size: 1.5 + progress * 2.5,
+                wiggleFreq: 0.02 + Math.random() * 0.05,
+                wiggleAmp: 0.001 + Math.random() * 0.002,
+                baseAngle: angle,
+                tOffset: Math.random() * 100,
+                fadeSpeed: 0.002 + Math.random() * 0.0015,
+                update: function (p) {
+                    const t = performance.now() * 0.001 + p.tOffset;
+                    const w = Math.sin(t * p.wiggleFreq) * p.wiggleAmp;
+
+                    p.x += Math.cos(p.baseAngle + w) * 0.001 / aspectRatio;
+                    p.y += Math.sin(p.baseAngle + w) * 0.001;
+
+                    p.color[3] -= p.fadeSpeed;
+                }
+            });
+        }
+    }
+}
+
 
     // Expose public functions
     return {
@@ -1125,6 +1355,10 @@ function createMist() {
         createElectricPulse,
         createFrostCrystals,
         createNebulaCloud,
-        createMist
+        createMist,
+        createRainbowBurst,
+        createNovaShock,
+        createMoldCreep,
+        createVoidTendrils
     };
 })(); // End of the IIFE (Immediately Invoked Function Expression)
