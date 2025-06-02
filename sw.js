@@ -1,7 +1,7 @@
 self.addEventListener("install", e => {
   e.waitUntil(
     caches.open("pwa-cache").then(cache => {
-      return cache.addAll(["index.html", "particles.js"]);
+      return cache.addAll(["/ffcts/index.html", "/ffcts/particles.js"]);
     })
   );
 });

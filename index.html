@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FFCTS 2025-06-01</title>
-  <link rel="manifest" href="./manifest.json" />
+  <link rel="manifest" href="/ffcts/manifest.json" />
   <style>
     body {
       margin: 0;
@@ -95,7 +95,7 @@
     const toggledKeys = new Set();
 
     window.addEventListener("keydown", (e) => {
-      if (e.key != "F5" && e.key != "F11") {
+      if (e.key != "F5" && e.key != "F11" && e.key != "F4") {
         e.preventDefault(); // Prevent default browser actions for other keys
             }
       if (e.code === "Space") {
@@ -159,7 +159,7 @@
   </script>
   <script>
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js');
+    navigator.serviceWorker.register('/ffcts/sw.js');
   }
 </script>
 </body>
