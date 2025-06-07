@@ -156,6 +156,48 @@
         clearInterval(intervalId);
       }
     });
+
+    let touchInterval = null;
+let currentKey = null;
+
+function getRandomKey(keyString) {
+  const index = Math.floor(Math.random() * keyString.length);
+  return keyString[index];
+}
+
+function simulateKeyDown(key) {
+  const event = new KeyboardEvent('keydown', { key });
+  document.dispatchEvent(event);
+}
+
+function simulateKeyUp(key) {
+  const event = new KeyboardEvent('keyup', { key });
+  document.dispatchEvent(event);
+}
+
+function clearTouch() {
+  if (touchInterval) {
+    clearInterval(touchInterval);
+    simulateKeyUp(currentKey);
+    touchInterval = null;
+    currentKey = null;
+  }
+}
+
+window.addEventListener('touchstart', (e) => {
+  e.preventDefault(); // optional: prevent scrolling
+  if (touchInterval) return;
+
+  currentKey = getRandomKey(keys);
+  simulateKeyDown(currentKey); // initial keydown
+
+  touchInterval = setInterval(() => {
+    simulateKeyDown(currentKey); // repeat keydown
+  }, 100); // adjust repeat speed here
+}, { passive: false });
+
+window.addEventListener('touchend', clearTouch);
+window.addEventListener('touchcancel', clearTouch);
   </script>
   <script>
   if ('serviceWorker' in navigator) {
