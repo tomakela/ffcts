@@ -178,22 +178,32 @@ function simulateKeyUp(key) {
 function clearTouch() {
   if (touchInterval) {
     clearInterval(touchInterval);
-    simulateKeyUp(currentKey);
+    if (currentKey && effectMap[currentKey]) {
+      updateInfoBox(currentKey, false);
+    }
     touchInterval = null;
     currentKey = null;
   }
 }
 
 window.addEventListener('touchstart', (e) => {
-  e.preventDefault(); // optional: prevent scrolling
+  e.preventDefault(); // Prevent scrolling
   if (touchInterval) return;
 
   currentKey = getRandomKey(keys);
-  simulateKeyDown(currentKey); // initial keydown
+  const effect = effectMap[currentKey];
+
+  if (!effect) return;
+
+  // Visual feedback
+  updateInfoBox(currentKey, true);
+
+  // First trigger immediately
+  effect();
 
   touchInterval = setInterval(() => {
-    simulateKeyDown(currentKey); // repeat keydown
-  }, 100); // adjust repeat speed here
+    effect();
+  }, 100);
 }, { passive: false });
 
 window.addEventListener('touchend', clearTouch);
