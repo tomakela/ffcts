@@ -2,7 +2,7 @@
 
 39 WebGL effects.
 
-Press space for info. You'll need a keyboard.
+Press space for info. ~~You'll need a keyboard~~.
 
 https://tomakela.github.io/ffcts/
 
