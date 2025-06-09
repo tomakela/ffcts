@@ -1,3 +1,5 @@
+const VERSION = 'v2';
+
 self.addEventListener("install", e => {
   e.waitUntil(
     caches.open("pwa-cache").then(cache => {
